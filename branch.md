@@ -3,6 +3,4 @@ this is a simple change
 hjello
 simple change
 hello
-hello2
-
-
+hello

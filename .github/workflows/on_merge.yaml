@@ -34,11 +34,11 @@ jobs:
             -H "Content-Type: multipart/form-data" \
             -F "feature_doc=@./feature_doc.md" \
             -F "design_doc=@./design_doc.md" \
-            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": \"${{ github.event.pull_request.number }}\"}" -o changelog/src/${FILE_NAME}
+            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": \"${{ github.event.pull_request.number }}\"}" -o ./changelog/src/${FILE_NAME}
 
           echo "Changelog file name: $FILE_NAME"
 
-          echo "- [$(date +%Y%m%d%H%M%S)_change_${REPO_NAME}_${PR_NUMBER}](./${FILE_NAME})" >> ../frontend/src/SUMMARY.md
+          echo "- [$(date +%Y%m%d%H%M%S)_change_${REPO_NAME}_${PR_NUMBER}](./${FILE_NAME})" >> ./changelog/src/SUMMARY.md
 
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2

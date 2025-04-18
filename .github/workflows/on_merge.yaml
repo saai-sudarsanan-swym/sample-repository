@@ -34,4 +34,22 @@ jobs:
             -H "Content-Type: multipart/form-data" \
             -F "feature_doc=@./feature_doc.md" \
             -F "design_doc=@./design_doc.md" \
-            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": \"${{ github.event.pull_request.number }}\"}"
+            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": \"${{ github.event.pull_request.number }}\"}" -o changelog/src/${FILE_NAME}
+
+          echo "Changelog file name: $FILE_NAME"
+
+          echo "- [$(date +%Y%m%d%H%M%S)_change_${REPO_NAME}_${PR_NUMBER}](./${FILE_NAME})" >> ../frontend/src/SUMMARY.md
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '0.4.10'
+      
+      - run: mdbook build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./changelog/book

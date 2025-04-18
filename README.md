@@ -1,2 +1,2 @@
-# -sample-repository
+# sample-repository
 a sample repository for testing skyra

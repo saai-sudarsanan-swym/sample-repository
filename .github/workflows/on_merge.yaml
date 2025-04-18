@@ -27,6 +27,9 @@ jobs:
           echo "Author: ${{ github.event.pull_request.user.login }}"
           echo "Repo: $REPO_NAME"
           
+          curl https://raw.githubusercontent.com/saai-sudarsanan-swym/skyra-docs/refs/heads/main/feature_doc.md -o feature_doc.md
+          curl https://raw.githubusercontent.com/saai-sudarsanan-swym/skyra-docs/refs/heads/main/design_doc.md -o design_doc.md
+          
           curl -X POST https://radically-sharing-platypus.ngrok-free.app/generate \
             -H "Content-Type: multipart/form-data" \
             -F "feature_doc=@./feature_doc.md" \

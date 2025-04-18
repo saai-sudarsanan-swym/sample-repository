@@ -26,6 +26,8 @@ jobs:
           echo "Title: ${{ github.event.pull_request.title }}"
           echo "Author: ${{ github.event.pull_request.user.login }}"
           echo "Repo: $REPO_NAME"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          FILE_NAME=$(date +%Y%m%d%H%M%S)_change_${REPO_NAME}_${PR_NUMBER}.md
           
           curl https://raw.githubusercontent.com/saai-sudarsanan-swym/skyra-docs/refs/heads/main/feature_doc.md -o feature_doc.md
           curl https://raw.githubusercontent.com/saai-sudarsanan-swym/skyra-docs/refs/heads/main/design_doc.md -o design_doc.md

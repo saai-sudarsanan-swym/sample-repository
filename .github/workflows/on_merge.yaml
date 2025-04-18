@@ -1,0 +1,21 @@
+# .github/workflows/on-merge-main.yml
+
+name: On PR Merge to Main
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  on-merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Echo PR merge
+        run: echo "A PR was merged into the main branch"

@@ -34,4 +34,4 @@ jobs:
             -H "Content-Type: multipart/form-data" \
             -F "feature_doc=@./feature_doc.md" \
             -F "design_doc=@./design_doc.md" \
-            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": ${{ github.event.pull_request.number }}"
+            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": \"${{ github.event.pull_request.number }}\"}"

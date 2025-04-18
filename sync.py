@@ -3,6 +3,10 @@ import shopify
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Any
+from flask import Flask, jsonify
+import threading
+
+app = Flask(__name__)
 
 # Initialize Shopify API
 def init_shopify(shop_url: str, access_token: str) -> None:
@@ -135,31 +139,48 @@ def get_product_details(product_id: int) -> Dict[Any, Any]:
     except Exception as e:
         raise Exception(f"Failed to fetch product details for ID {product_id}: {str(e)}")
 
-def main():
-    # These should be set as environment variables
-    shop_url = os.getenv('SHOPIFY_SHOP_URL')
-    access_token = os.getenv('SHOPIFY_ACCESS_TOKEN')
-    
-    if not all([shop_url, access_token]):
-        raise ValueError("Missing required environment variables: SHOPIFY_SHOP_URL, SHOPIFY_ACCESS_TOKEN")
-    
-    # Initialize Shopify API
-    init_shopify(shop_url, access_token)
-    
-    # Initialize database
-    conn = init_db()
-    
+def trigger_sync():
+    """Trigger the sync process in a background thread."""
     try:
-        # Fetch products from Shopify
-        products = get_all_products()
+        # These should be set as environment variables
+        shop_url = os.getenv('SHOPIFY_SHOP_URL')
+        access_token = os.getenv('SHOPIFY_ACCESS_TOKEN')
         
-        # Sync products to database
-        sync_products_to_db(products, conn)
+        if not all([shop_url, access_token]):
+            raise ValueError("Missing required environment variables: SHOPIFY_SHOP_URL, SHOPIFY_ACCESS_TOKEN")
         
-        print(f"Successfully synced {len(products)} products to database")
+        # Initialize Shopify API
+        init_shopify(shop_url, access_token)
         
-    finally:
-        conn.close()
+        # Initialize database
+        conn = init_db()
+        
+        try:
+            # Fetch products from Shopify
+            products = get_all_products()
+            
+            # Sync products to database
+            sync_products_to_db(products, conn)
+            
+            return {"status": "success", "message": f"Successfully synced {len(products)} products to database"}
+            
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.route('/sync/trigger', methods=['POST'])
+def sync_trigger():
+    """Endpoint to trigger the sync process."""
+    # Start sync in a background thread
+    thread = threading.Thread(target=trigger_sync)
+    thread.start()
+    
+    return jsonify({
+        "status": "started",
+        "message": "Sync process has been initiated"
+    })
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=5000)

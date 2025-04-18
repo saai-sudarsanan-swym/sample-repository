@@ -17,5 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Echo PR merge
-        run: echo "A PR was merged into the main branch"
+      - name: Echo PR info and repo name
+        run: |
+          echo "✅ PR #${{ github.event.pull_request.number }} was merged into main"
+          echo "Title: ${{ github.event.pull_request.title }}"
+          echo "Author: ${{ github.event.pull_request.user.login }}"
+          echo "Repo: ${{ github.repository }}"

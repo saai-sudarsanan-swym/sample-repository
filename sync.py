@@ -57,14 +57,44 @@ def init_db(db_path: str = 'shopify_products.db') -> sqlite3.Connection:
     conn.commit()
     return conn
 
+def transform_product_data(product: Dict[Any, Any]) -> Dict[str, Any]:
+    """
+    Transform Shopify product data to match our database schema.
+    
+    Args:
+        product (Dict): Raw Shopify product data
+        
+    Returns:
+        Dict containing transformed data matching our schema
+    """
+    # Get the first variant for price and inventory information
+    variant = product.get('variants', [{}])[0] if product.get('variants') else {}
+    
+    return {
+        'id': product.get('id'),
+        'title': product.get('title'),
+        'description': product.get('body_html'),
+        'vendor': product.get('vendor'),
+        'product_type': product.get('product_type'),
+        'created_at': product.get('created_at'),
+        'updated_at': product.get('updated_at'),
+        'published_at': product.get('published_at'),
+        'status': product.get('status'),
+        'price': float(variant.get('price', 0)) if variant.get('price') else None,
+        'compare_at_price': float(variant.get('compare_at_price', 0)) if variant.get('compare_at_price') else None,
+        'sku': variant.get('sku'),
+        'inventory_quantity': variant.get('inventory_quantity'),
+        'last_synced_at': datetime.utcnow()
+    }
+
 def sync_products_to_db(products: List[Dict[Any, Any]], conn: sqlite3.Connection) -> None:
     """Sync products to the database."""
     cursor = conn.cursor()
     current_time = datetime.utcnow()
     
     for product in products:
-        # Get the first variant for price information
-        variant = product.variants[0] if product.variants else None
+        # Transform the product data to match our schema
+        transformed_data = transform_product_data(product)
         
         cursor.execute('''
             INSERT OR REPLACE INTO products (
@@ -74,20 +104,20 @@ def sync_products_to_db(products: List[Dict[Any, Any]], conn: sqlite3.Connection
                 last_synced_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            product.id,
-            product.title,
-            product.body_html,
-            product.vendor,
-            product.product_type,
-            product.created_at,
-            product.updated_at,
-            product.published_at,
-            product.status,
-            variant.price if variant else None,
-            variant.compare_at_price if variant else None,
-            variant.sku if variant else None,
-            variant.inventory_quantity if variant else None,
-            current_time
+            transformed_data['id'],
+            transformed_data['title'],
+            transformed_data['description'],
+            transformed_data['vendor'],
+            transformed_data['product_type'],
+            transformed_data['created_at'],
+            transformed_data['updated_at'],
+            transformed_data['published_at'],
+            transformed_data['status'],
+            transformed_data['price'],
+            transformed_data['compare_at_price'],
+            transformed_data['sku'],
+            transformed_data['inventory_quantity'],
+            transformed_data['last_synced_at']
         ))
     
     conn.commit()

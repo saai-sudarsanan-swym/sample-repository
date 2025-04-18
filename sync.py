@@ -88,6 +88,53 @@ def sync_products_to_db(products: List[Dict[Any, Any]], conn: sqlite3.Connection
     
     conn.commit()
 
+def get_product_details(product_id: int) -> Dict[Any, Any]:
+    """
+    Fetch detailed information about a specific product from Shopify.
+    
+    Args:
+        product_id (int): The ID of the product to fetch
+        
+    Returns:
+        Dict containing detailed product information including variants, images, and other metadata
+    """
+    try:
+        product = shopify.Product.find(product_id)
+        return {
+            'id': product.id,
+            'title': product.title,
+            'description': product.body_html,
+            'vendor': product.vendor,
+            'product_type': product.product_type,
+            'created_at': product.created_at,
+            'updated_at': product.updated_at,
+            'published_at': product.published_at,
+            'status': product.status,
+            'variants': [{
+                'id': variant.id,
+                'title': variant.title,
+                'price': variant.price,
+                'compare_at_price': variant.compare_at_price,
+                'sku': variant.sku,
+                'inventory_quantity': variant.inventory_quantity,
+                'weight': variant.weight,
+                'weight_unit': variant.weight_unit
+            } for variant in product.variants],
+            'images': [{
+                'id': image.id,
+                'src': image.src,
+                'alt': image.alt,
+                'position': image.position
+            } for image in product.images],
+            'tags': product.tags.split(', ') if product.tags else [],
+            'options': [{
+                'name': option.name,
+                'values': option.values
+            } for option in product.options]
+        }
+    except Exception as e:
+        raise Exception(f"Failed to fetch product details for ID {product_id}: {str(e)}")
+
 def main():
     # These should be set as environment variables
     shop_url = os.getenv('SHOPIFY_SHOP_URL')

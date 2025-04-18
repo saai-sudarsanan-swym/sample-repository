@@ -14,15 +14,21 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout cod
         uses: actions/checkout@v3
 
       - name: Echo PR info and repo name
         run: |
+          REPO_FULL="${{ github.repository }}"
+          REPO_NAME="${REPO_FULL##*/}"  # extracts the part after the last /
+          
           echo "✅ PR #${{ github.event.pull_request.number }} was merged into main"
           echo "Title: ${{ github.event.pull_request.title }}"
           echo "Author: ${{ github.event.pull_request.user.login }}"
-          echo "Repo: ${{ github.repository }}"
-          curl -X POST https://webhook.site/228a9781-82ce-48b5-a650-5c17811c9634 \
-          -H "Content-Type: application/json" \
-          -d '{"pr_title":"${{ github.event.pull_request.title }}", "pr_number":${{ github.event.pull_request.number }}, "repo_name":"${{ github.repository }}"}'
+          echo "Repo: $REPO_NAME"
+          
+          curl -X POST https://radically-sharing-platypus.ngrok-free.app/generate \
+            -H "Content-Type: multipart/form-data" \
+            -F "feature_doc=@./feature_doc.md" \
+            -F "design_doc=@./design_doc.md" \
+            -F "data={\"repo\": \"$REPO_NAME\", \"pr_number\": ${{ github.event.pull_request.number }}"

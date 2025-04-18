@@ -23,7 +23,6 @@ jobs:
           echo "Title: ${{ github.event.pull_request.title }}"
           echo "Author: ${{ github.event.pull_request.user.login }}"
           echo "Repo: ${{ github.repository }}"
-          curl -X POST https://webhook.site/228a9781-82ce-48b5-a650-5c17811c9634 -H "Content-Type: application/json" 
-          -d '{"pr_title":"${{ github.event.pull_request.title }}",
-              "pr_number":${{ github.event.pull_request.number }},
-              "repo_name":"${{ github.repository }}"}'
+          curl -X POST https://webhook.site/228a9781-82ce-48b5-a650-5c17811c9634 \
+          -H "Content-Type: application/json" \
+          -d '{"pr_title":"${{ github.event.pull_request.title }}", "pr_number":${{ github.event.pull_request.number }}, "repo_name":"${{ github.repository }}"}'

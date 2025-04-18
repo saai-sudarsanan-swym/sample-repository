@@ -47,7 +47,7 @@ jobs:
         with:
           mdbook-version: '0.4.10'
       
-      - run: mdbook build ./changelog/src --dest-dir ./changelog/book
+      - run: mdbook build ./changelog --dest-dir ./changelog/book
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
